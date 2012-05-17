@@ -2,6 +2,8 @@ package util;
 
 import com.google.common.base.Predicate;
 
+import java.util.Iterator;
+
 /**
  * Created with IntelliJ IDEA.
  * User: Matt
@@ -9,14 +11,17 @@ import com.google.common.base.Predicate;
  * Time: 12:38 AM
  */
 public
-class Grid<T>
+class Grid<T> implements Iterable<T>
 {
 	private
 	T[][] elements;
+	private int width, height;
 
 	public
 	Grid( int width, int height )
 	{
+		this.width = width;
+		this.height = height;
 		elements = (T[][]) new Object[width][height];
 	}
 
@@ -24,6 +29,18 @@ class Grid<T>
 	T get( int x, int y )
 	{
 		return elements[x][y];
+	}
+
+	public
+	int rows()
+	{
+		return height;
+	}
+
+	public
+	int cols()
+	{
+		return width;
 	}
 
 	public
@@ -46,5 +63,37 @@ class Grid<T>
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public
+	Iterator<T> iterator()
+	{
+		return new Iterator<T>()
+		{
+			int curX = 0;
+			int curY = 0;
+
+			@Override
+			public
+			boolean hasNext()
+			{
+				return (curX == width) && (curY == height);
+			}
+
+			@Override
+			public
+			T next()
+			{
+				return get(curX++, curY++);
+			}
+
+			@Override
+			public
+			void remove()
+			{
+				throw new UnsupportedOperationException();
+			}
+		}
 	}
 }
