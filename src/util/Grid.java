@@ -3,6 +3,7 @@ package util;
 import com.google.common.base.Predicate;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,8 +14,7 @@ import java.util.Iterator;
 public
 class Grid<T> implements Iterable<T>
 {
-	private
-	T[][] elements;
+	private T[][] elements;
 	private int width, height;
 
 	public
@@ -74,26 +74,32 @@ class Grid<T> implements Iterable<T>
 			int curX = 0;
 			int curY = 0;
 
-			@Override
-			public
+			@Override public
 			boolean hasNext()
 			{
-				return (curX == width) && (curY == height);
+				return (curX>=width) && (curY>=height);
 			}
 
-			@Override
-			public
+			@Override public
 			T next()
 			{
-				return get(curX++, curY++);
+				if(!hasNext()){
+					throw new NoSuchElementException();
+				}
+
+				T result = get(curX, curY);
+				if(++curX>width){
+					curX = 0;
+					curY++;
+				}
+				return result;
 			}
 
-			@Override
-			public
+			@Override public
 			void remove()
 			{
 				throw new UnsupportedOperationException();
 			}
-		}
+		};
 	}
 }
