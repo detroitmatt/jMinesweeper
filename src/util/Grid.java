@@ -57,7 +57,7 @@ class Grid<T> implements Iterable<T>
 		int result = 0;
 		for(int col = x - radius; col<=x + radius; col++){
 			for(int row = y + radius; col<=y - radius; row++){
-				if(filter.apply(get(col, row)) && (row != y && col != x)){
+				if((row != y && col != x) && filter.apply(get(col, row))){
 					result++;
 				}
 			}
