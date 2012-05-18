@@ -1,6 +1,6 @@
 package util;
 
-import com.google.common.base.Predicate;
+import ch.lambdaj.function.matcher.Predicate;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -52,21 +52,42 @@ class Grid<T> implements Iterable<T>
 	}
 
 	public
+	Grid fill( T element )
+	{
+		for(int i = 0; i<elements.length; i++){
+			T[] ts = elements[i];
+			for(int j = 0; j<ts.length; j++){
+				set(i, j, element);
+			}
+		}
+		return this;
+	}
+
+	public
 	int getNeighboring( int x, int y, int radius, Predicate<T> filter )
 	{
 		int result = 0;
 		for(int col = x - radius; col<=x + radius; col++){
-			for(int row = y + radius; col<=y - radius; row++){
-				if((row != y && col != x) && filter.apply(get(col, row))){
-					result++;
+			for(int row = y + radius; row>=y - radius; row--){
+				try {
+					if((row != y && col != x) && filter.apply(get(col, row))){
+						result++;
+						System.out.println("Match: " + get(row, col));
+					}
+					else {
+						System.out.println("No match: " + get(row, col));
+					}
+				} catch(IndexOutOfBoundsException ex){
+					System.err.println("Out of bounds");
 				}
+				System.out.println("row--");
 			}
+			System.out.println("col++");
 		}
 		return result;
 	}
 
-	@Override
-	public
+	@Override public
 	Iterator<T> iterator()
 	{
 		return new Iterator<T>()
@@ -101,5 +122,44 @@ class Grid<T> implements Iterable<T>
 				throw new UnsupportedOperationException();
 			}
 		};
+	}
+
+	public static
+	void main( String[] args )
+	{
+		final Grid<Integer> test = new Grid<Integer>(3, 3);
+		test.fill(1);
+		print(test);
+
+		int cellNum = 1;
+		for(int i = 0; i<test.rows(); i++){
+			for(int j = 0; j<test.cols(); j++){
+				test.set(i, j, cellNum++);
+			}
+		}
+		print(test);
+
+		System.out.println("Neighbors:\n");
+		int neighs = test.getNeighboring(2, 2, 1, new Predicate<Integer>()
+		{
+			@Override public
+			boolean apply( Integer integer )
+			{
+				return integer>5;
+			}
+		});
+		System.out.println(neighs);
+		System.out.println("Done.");
+	}
+
+	public static
+	void print( Grid g )
+	{
+		for(int i = 0; i<g.rows(); i++){
+			for(int j = 0; j<g.cols(); j++){
+				System.out.print("[" + g.get(i, j) + "]");
+			}
+			System.out.println();
+		}
 	}
 }
