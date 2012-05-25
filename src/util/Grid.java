@@ -22,13 +22,13 @@ class Grid<T> implements Iterable<T>
 	{
 		this.width = cols;
 		this.height = rows;
-		elements = (T[][]) new Object[cols][rows];
+		elements = (T[][]) new Object[rows][cols];
 	}
 
 	public
-	T get( int x, int y )
+	T get( int row, int col )
 	{
-		return elements[x][y];
+		return elements[row][col];
 	}
 
 	public
@@ -44,20 +44,19 @@ class Grid<T> implements Iterable<T>
 	}
 
 	public
-	T set( int x, int y, T element )
+	T set( int row, int col, T element )
 	{
-		T result = get(x, y);
-		elements[x][y] = element;
+		T result = get(row, col);
+		elements[row][col] = element;
 		return result;
 	}
 
 	public
 	Grid fill( T element )
 	{
-		for(int i = 0; i<elements.length; i++){
-			T[] ts = elements[i];
-			for(int j = 0; j<ts.length; j++){
-				set(i, j, element);
+		for(int x = 0; x<cols(); x++){
+			for(int y = 0; y<rows(); y++){
+				set(x, y, element);
 			}
 		}
 		return this;
@@ -67,27 +66,16 @@ class Grid<T> implements Iterable<T>
 	 *
 	 */
 	public
-	int getNeighboring( int x, int y, int radius, Predicate<T> filter )
+	int getNeighboring( int row, int col, int radius, Predicate<T> filter )
 	{
 		int result = 0;
-		/*
-		 * Start at the top row, go to the bottom row. Row decreases.
-		 */
-		for(int row = y + radius; row>=y - radius; row--){
-			/*
-			 * Start at the leftmost col, go to the rightmost col. Col increases.
-			 */
-			for(int col = x - radius; col<=x + radius; col++){
-				System.out.println("[" + x + "," + y + "]");
-
-				if(col<0 || col>=cols() || row<0 || row>=rows()){
+		for(int cRow = row - radius; cRow<=row + radius; cRow++){
+			for(int cCol = col - radius; cCol<=col + radius; cCol++){
+				if(cCol<0 || cCol>=cols() || cRow<0 || cRow>=rows()){
 					continue;
 				}
-
-				if(!(row == y || col == x)){
-					if(filter.apply(get(col, row))){
-						result++;
-					}
+				if(!(cRow == row && cCol == col) && filter.apply(get(col, row))){
+					result++;
 				}
 			}
 		}
@@ -144,13 +132,8 @@ class Grid<T> implements Iterable<T>
 			}
 		}
 
-		for(int i = 0; i<test.rows(); i++){
-			for(int ii = 0; ii<test.cols(); ii++){
-				System.out.println(test.get(ii, i));
-			}
-		}
+		print(test);
 
-		System.out.println("Neighbors:\n");
 		Predicate<Integer> gtFive = new Predicate<Integer>()
 		{
 			@Override public
@@ -159,31 +142,7 @@ class Grid<T> implements Iterable<T>
 				return integer>5;
 			}
 		};
-		System.out.println("6=" + gtFive.apply(6));
 		int neighs = test.getNeighboring(2, 2, 1, gtFive);
-		System.out.println("Doing it manually:");
-		int result = 0, x = 2, y = 2, radius = 1;
-
-//		for(int row = y + radius; row<=y - radius; row--){
-//			/*
-//			 * Start at the leftmost col, go to the rightmost col. Col increases.
-//			 */
-//			for(int col = x - radius; col<=x + radius; x++){
-//				try {
-//					System.out.println("[" + x + "," + y + "]");
-//					System.out.println(test.get(col, row) + " matched " + gtFive.toString() + " ?");
-//					System.out.println(gtFive.apply(test.get(col, row)));
-//
-//					if(!(row == y || col == x)){
-//						if(gtFive.apply(test.get(col, row))){
-//							result++;
-//						}
-//					}
-//				} catch(IndexOutOfBoundsException ex){
-//					System.err.println("Out of bounds: " + x + ", " + y);
-//				}
-//			}
-//		}
 		System.out.println(neighs);
 		System.out.println("Done.");
 	}
